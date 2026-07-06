@@ -1,6 +1,10 @@
 import streamlit as st
 from src.etl.file_loader import load_data
-from src.utils.profiler import profile_dataset
+from src.utils.profiler import (
+    profile_dataset,
+    get_missing_values,
+)
+
 
 st.set_page_config(
     page_title="AI Data Analyst Agent",
@@ -19,16 +23,13 @@ uploaded_file = st.file_uploader(
 if uploaded_file is not None:
     df = load_data(uploaded_file)
     profile = profile_dataset(df)
-    total_cells = profile["rows"] * profile["columns"]
-
-    missing_percentage = round(
-        (profile["missing_values"] / total_cells) * 100, 2
-    )
-
-    duplicate_percentage = round(
-        (profile["duplicate_rows"] / profile["rows"]) * 100, 2
-    )
+    missing_df = get_missing_values(df)
+    missing_df = missing_df[
+        missing_df["Missing Values"] > 0 
+    ]
+   
     st.success("Dataset loaded successfully!")
+    
     st.subheader("Dataset Summary")
     
     col1, col2, col3, col4, col5 = st.columns(5)
@@ -36,7 +37,7 @@ if uploaded_file is not None:
     with col1:
         st.metric(
             "Rows", 
-            f"{profile["rows"]:,}"
+            f"{profile['rows']:,}"
         )
                   
 
@@ -56,21 +57,32 @@ if uploaded_file is not None:
     with col4:
         st.metric(
             "Missing Values", 
-            profile["missing_values"],
-            f"{missing_percentage}%"
+            profile["missing_values"]
         )
 
     with col5:
         st.metric(
             "Duplicate Rows", 
-            profile["duplicate_rows"],
-            f"{duplicate_percentage}%"
+            profile["duplicate_rows"]
         )
         
     st.subheader("Dataset Preview")
-    
+
     st.dataframe(
         df.head(),
         use_container_width=True,
         hide_index=True
     )
+
+    st.subheader("Data Quality Report")
+
+    st.dataframe(
+        missing_df,
+        use_container_width=True,
+        hide_index=True,
+    )
+
+
+
+
+   

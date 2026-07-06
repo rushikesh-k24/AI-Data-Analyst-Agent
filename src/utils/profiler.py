@@ -22,3 +22,25 @@ def profile_dataset(df: pd.DataFrame) -> dict:
     }
 
     return profile
+
+
+def get_missing_values(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Return missing value statistics for each column
+    """
+
+    missing_df = pd.DataFrame({
+        "Column": df.columns,
+        "Missing Values": df.isnull().sum().values
+    })
+
+    missing_df["Missing %"] = (
+        missing_df["Missing Values"] / len(df) * 100
+    ).round(2)
+
+    missing_df = missing_df.sort_values(
+        by="Missing %",
+        ascending=False
+    )
+
+    return missing_df
