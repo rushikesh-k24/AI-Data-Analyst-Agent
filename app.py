@@ -4,7 +4,7 @@ from src.utils.profiler import (
     profile_dataset,
     get_missing_values,
 )
-
+from src.utils.datatype_detector import detect_data_types
 
 st.set_page_config(
     page_title="AI Data Analyst Agent",
@@ -27,7 +27,7 @@ if uploaded_file is not None:
     missing_df = missing_df[
         missing_df["Missing Values"] > 0 
     ]
-   
+    datatype_df = detect_data_types(df)
     st.success("Dataset loaded successfully!")
     
     st.subheader("Dataset Summary")
@@ -80,6 +80,14 @@ if uploaded_file is not None:
         missing_df,
         use_container_width=True,
         hide_index=True,
+    )
+
+    st.subheader("Data Type Report")
+
+    st.dataframe(
+        datatype_df,
+        use_container_width=True,
+        hide_index=True
     )
 
 
